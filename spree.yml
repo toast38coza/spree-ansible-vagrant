@@ -1,0 +1,85 @@
+---
+- hosts: all
+  sudo: yes
+  vars_files:
+    - vars/defaults.yml
+
+  tasks:
+    - name: update apt cache 
+      apt: update_cache=yes cache_valid_time=3600      
+      
+    - name: install ruby dependencies 
+      action: apt pkg={{item}} state=installed
+      with_items:
+        - build-essential
+        - automake
+        - bison
+        - autoconf
+        - pkg-config
+        - libreadline6
+        - libreadline6-dev
+        - openssl
+        - libssl-dev
+        - curl
+        - git-core
+        - zlib1g
+        - zlib1g-dev
+        - libyaml-dev
+        - libsqlite3-dev
+        - libxml2-dev
+        - libxslt1-dev
+        - curl
+        - nginx
+        - python-setuptools
+        - sqlite
+
+    - name: Latest version of Ruby is installed
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - ruby2.0
+        - ruby2.0-dev
+
+    - name: Symlink exists for Ruby 2.0
+      file: src=/usr/bin/ruby2.0 dest=/usr/local/bin/ruby state=link
+
+    - name: Symlink exists for Ruby Gems 2.0
+      file: src=/usr/bin/gem2.0 dest=/usr/local/bin/gem state=link
+
+    - name: Install required Python packages (easy_install).
+      easy_install: name={{item}}
+      with_items:
+        - pip
+
+    - name: Install required python libs 
+      pip: name=httplib2
+
+    - name: Install app dependencies 
+      action: apt pkg={{item}} state=installed
+      with_items:
+        - libpq-dev
+        - nodejs
+        - imagemagick
+      tags: package
+
+  
+    #- name: Install RVM with with ruby and rails
+    #  action: command "\curl -sSL https://get.rvm.io | bash -s stable --rails"
+
+    # - name: Install Preferred version of rails
+    #  action: gem name=rails version={{rails_version}}
+
+    - name: Install Gems
+      action: gem name=rails version=4.1.2
+
+    - name: Install Gems
+      action: gem name={{item}} state=present
+      with_items:
+        - bundler
+        - spree_cmd
+        - unicorn
+      
+    - name: Create required directories
+      file: path=/var/www/ state=directory
+
+    - name: Checkout a starter app
+      git: repo=git@github.com:toast38coza/spree-ansible-vagrant.git dest=/var/www/

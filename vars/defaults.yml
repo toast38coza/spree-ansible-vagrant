@@ -1,0 +1,10 @@
+## webapp
+
+#webserver_name: spree.example.com
+#deploy_directory: /data/spree
+#app_name: spree
+
+## stolen from https://github.com/jgrowl/ansible-playbook-ruby-from-src
+ruby_version: 2.1.0
+rails_version: 4.1.2
+install_dir: /var/www/
